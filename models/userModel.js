@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    
+
 })
 
 UserSchema.pre("save", async function (next) {
@@ -62,6 +62,18 @@ UserSchema.methods.generateRefreshToken = function () {
         process.env.REFRESH_TOKEN_SECRET,
         {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY
+        }
+    )
+}
+
+UserSchema.methods.generateResetPassowordToken = function () {
+    return jwt.sign(
+        {
+            userId: this._id
+        },
+        process.env.RESET_PASSWORD_SECRET,
+        {
+            expiresIn: process.env.RESET_PASSWORD_EXPIRY
         }
     )
 }

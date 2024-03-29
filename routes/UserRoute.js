@@ -1,5 +1,5 @@
-const { register, login, resetPassword } = require("../controllers/UserController")
-const { verifyJWT } = require("../middlewares/auth")
+const { register, login, forgetPassword, resetPassword } = require("../controllers/UserController")
+
 
 async function UserRoute(fastify, options) {
 
@@ -7,12 +7,10 @@ async function UserRoute(fastify, options) {
 
     fastify.post("/login", login)
 
-    fastify.route({
-        method: "POST",
-        url: "/resetPassword",
-        preHandler: verifyJWT,
-        handler: resetPassword
-    })
+    fastify.post("/forgetPassword", forgetPassword)
+
+    fastify.post("/resetPassword", resetPassword
+    )
 }
 
 module.exports = UserRoute
