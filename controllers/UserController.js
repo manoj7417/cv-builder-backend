@@ -53,21 +53,21 @@ const login = async (request, reply) => {
     try {
         const user = await User.findOne({ email })
         if (!user) {
-            return request.status(404).send({
+            return request.code(404).send({
                 status: "FAILURE",
                 error: "User not found"
             })
         }
         const isPasswordcorrect = await user.comparePassword(password)
         if (!isPasswordcorrect) {
-            return reply.status(401).send({
+            return reply.code(401).send({
                 status: "FAILURE",
                 error: "Invalid credentials"
             })
         }
         const accessToken = await user.generateAccessToken()
         if (accessToken) {
-            reply.status(200).send({
+            reply.code(200).send({
                 status: "SUCCESS",
                 message: "LogIn successful",
                 token: accessToken
@@ -75,7 +75,7 @@ const login = async (request, reply) => {
         }
     } catch (error) {
         console.log(error)
-        reply.status(500).send({
+        reply.code(500).send({
             status: "FAILURE",
             error: error.message || "Internal server error"
         })
