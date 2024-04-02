@@ -3,6 +3,7 @@ const { apiKeyAuth } = require('./middlewares/auth')
 const verifyJWT = require('./middlewares/verifyJwt')
 const UserRoute = require('./routes/UserRoute')
 // const swagger = require('@fastify/swagger')
+const cors = require('@fastify/cors')
 
 require('dotenv').config()
 
@@ -15,7 +16,9 @@ const fastify = require('fastify')({
     }
 })
 
-
+fastify.register(cors, {
+    origin: "*"
+})
 fastify.decorate('verifyJWT', verifyJWT)
 
 fastify.addHook("onRequest", apiKeyAuth)
