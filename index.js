@@ -17,10 +17,11 @@ const fastify = require('fastify')({
 })
 
 fastify.register(cors, {
-    origin: "*"
+    origin: ["http://localhost:3000","http://localhost:3001","http://localhost:3002"],
+    allowedHeaders:["GET","POST","PUT","PATCH","DELETE"]
 })
-fastify.decorate('verifyJWT', verifyJWT)
 
+fastify.decorate('verifyJWT', verifyJWT)
 fastify.addHook("onRequest", apiKeyAuth)
 fastify.register(UserRoute, { prefix: '/api/user' })
 

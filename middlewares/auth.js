@@ -4,6 +4,7 @@ require('dotenv').config()
 
 async function apiKeyAuth(request, reply) {
     const apiKey = request.headers['x-api-key'];
+    console.log("apikey::",apiKey)
     const knownKey = process.env.APIKEY
 
     if (!apiKey || apiKey !== knownKey) {

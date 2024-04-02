@@ -1,6 +1,5 @@
 const { register, login, forgetPassword, resetPassword } = require("../controllers/UserController");
 
-
 const registerSchema = {
     body: {
         type: 'object',
