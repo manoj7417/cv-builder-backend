@@ -19,6 +19,7 @@ const fastify = require('fastify')({
 fastify.register(cors, {
     origin: "*"
 })
+
 fastify.decorate('verifyJWT', verifyJWT)
 
 fastify.addHook("onRequest", apiKeyAuth)

@@ -24,6 +24,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
 
 const register = async (request, reply) => {
     const { email, fullname, password } = request.body;
+    console.log(request.body)
     try {
         const findExistingUser = await User.findOne({ email })
         if (findExistingUser) {

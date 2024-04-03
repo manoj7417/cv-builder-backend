@@ -8,7 +8,7 @@ const registerSchema = {
         properties: {
             fullname: { type: 'string', maxLength: 100 },
             email: { type: 'string', format: 'email', maxLength: 255 },
-            password: { type: 'string', minLength: 6, maxLength: 50 }
+            password: { type: 'string', minLength: 8, maxLength: 50, errorMessage: "Password must have 8 characters" }
         }
     }
 };
