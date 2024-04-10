@@ -1,4 +1,4 @@
-const User = require("../models/userModel");
+
 const fs = require("fs");
 const path = require("path");
 const { sendEmail } = require("../utils/nodemailer");
@@ -9,6 +9,7 @@ const resetPasswordTemplatePath = path.join(
   "resetPassword.html"
 );
 const jwt = require("jsonwebtoken");
+const { User } = require("../models/userModel");
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -30,8 +31,6 @@ const generateAccessAndRefereshTokens = async (userId) => {
 
 const register = async (request, reply) => {
   const { email, fullname, password } = request.body;
-    console.log(request.body)
-  console.log(email);
   try {
     const findExistingUser = await User.findOne({ email });
     if (findExistingUser) {

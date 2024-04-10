@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        requried: true,
+        required: true,
         trim: true
     },
     password: {
@@ -80,4 +80,4 @@ UserSchema.methods.generateResetPassowordToken = function () {
 
 const User = mongoose.model("User", UserSchema)
 
-module.exports = User
+module.exports = { User };
