@@ -3,11 +3,9 @@ const { apiKeyAuth } = require('./middlewares/auth')
 const verifyJWT = require('./middlewares/verifyJwt')
 const ResumeRoute = require('./routes/ResumeRoute')
 const UserRoute = require('./routes/UserRoute')
-// const swagger = require('@fastify/swagger')
 const cors = require('@fastify/cors')
 
 require('dotenv').config()
-
 
 const fastify = require('fastify')({
     logger: {
@@ -54,20 +52,22 @@ fastify.register(require('@fastify/swagger'), {
 // cors 
 fastify.register(cors, {
     origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
-    allowedHeaders: ["GET", "POST", "PUT", "PATCH", "DELETE"]
-})
-// verifying JWT
+    allowedHeaders: ["Content-Type", "Accept", "Authorization", "x-api-key"], // Include 'x-api-key' header
+    credentials: true
+});
+
+
+
 fastify.decorate('verifyJWT', verifyJWT)
 
 // check apikey on each request
-// fastify.addHook("onRequest", apiKeyAuth)
+fastify.addHook("onRequest", apiKeyAuth)
 // Routes 
 
 //userRoute
 fastify.register(UserRoute, { prefix: '/api/user' })
-//UserResume Route
-fastify.register(ResumeRoute, { prefix: "/api/resume" })
 
+fastify.register(ResumeRoute, { prefix: '/api/resume' })
 
 
 const start = async () => {
