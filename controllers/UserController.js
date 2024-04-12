@@ -11,6 +11,7 @@ const resetPasswordTemplatePath = path.join(
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/userModel");
 
+//generate access token and refresh token for the user
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -29,6 +30,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
   }
 };
 
+// register the user 
 const register = async (request, reply) => {
   const { email, fullname, password } = request.body;
   try {
@@ -55,6 +57,7 @@ const register = async (request, reply) => {
   }
 };
 
+// verfiy user password and send access token in cookies
 const login = async (request, reply) => {
   const { email, password } = request.body;
   try {
@@ -89,6 +92,7 @@ const login = async (request, reply) => {
   }
 };
 
+// generate token for the user and email the user  the frontend link with token to reset the password 
 const forgetPassword = async (request, reply) => {
   const { email } = request.body;
   try {
@@ -120,6 +124,7 @@ const forgetPassword = async (request, reply) => {
   }
 };
 
+//decode user token from response token and update the user password accordingly
 const resetPassword = async (request, reply) => {
   const { newPassword, token } = request.body;
   try {
@@ -160,6 +165,35 @@ const resetPassword = async (request, reply) => {
   }
 };
 
+
+// update the user role and subsription status  for the specific user 
+const updateUserDetails = async (request, reply) => {
+  const { role, isSubscribed } = request.body;
+  const { userId } = request.params;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return reply.code(404).send({
+        status: "FAILURE",
+        error: "User not found",
+      });
+    }
+    if (role) user.role = role;
+    if (isSubscribed !== undefined) user.isSubscribed = isSubscribed;
+    await user.save();
+    return reply.code(200).send({
+      status: "SUCCESS",
+      message: "User details updated successfully",
+    });
+  } catch (error) {
+    console.log("error", error);
+    reply.code(500).send({
+      status: "FAILURE",
+      error: error.message || "Internal server error",
+    });
+  }
+}
+//decode the reset password token and return the decode result
 async function decodeToken(token) {
   try {
     const decoded = await jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
@@ -174,4 +208,5 @@ module.exports = {
   login,
   forgetPassword,
   resetPassword,
+  updateUserDetails
 };

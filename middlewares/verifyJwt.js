@@ -16,7 +16,7 @@ async function verifyJWT(request, reply) {
         const decodedToken = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
 
         const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
-    
+
 
         if (!user) {
             return reply.code(404).send({
@@ -24,6 +24,7 @@ async function verifyJWT(request, reply) {
                 error: "User not found"
             })
         }
+        console.log(user);
         request.user = user;
     } catch (error) {
         return reply.code(401).send({

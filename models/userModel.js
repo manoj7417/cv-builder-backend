@@ -18,8 +18,25 @@ const UserSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-
-})
+    role: {
+        type: String,
+        required: true,
+        trim: true,
+        enum: ['user', 'admin'],
+        default: 'user',
+    },
+    isSubscribed: {
+        type: Boolean,
+        default: false
+    },
+    resumes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Resume"
+    }]
+},
+    {
+        timestamps: true
+    })
 
 UserSchema.pre("save", async function (next) {
     try {

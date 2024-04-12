@@ -1,4 +1,4 @@
-const { register, login, forgetPassword, resetPassword } = require("../controllers/UserController");
+const { register, login, forgetPassword, resetPassword, updateUserDetails } = require("../controllers/UserController");
 
 const registerSchema = {
     body: {
@@ -47,13 +47,29 @@ const resetPasswordSchema = {
 
 async function UserRoute(fastify, options) {
 
+    // register the user 
     fastify.post("/register", { schema: registerSchema }, register)
 
+
+    // verfiy user password and send access token in cookies
     fastify.post("/login", { schema: loginSchema }, login)
 
+
+    // generate token for the user and email the user  the frontend link with token to reset the password 
     fastify.post("/forgetPassword", { schema: forgetPasswordSchema }, forgetPassword)
 
+
+    //decode user token from response token and update the user password accordingly
     fastify.post("/resetPassword", { schema: resetPasswordSchema }, resetPassword)
+
+
+    // update the user role and subsription status  for the specific user 
+    fastify.route({
+        method: 'patch',
+        url: "/updateRole/:userId",
+        preHandler: [fastify.verifyJWT, fastify.roleCheck(['admin'])],
+        handler: updateUserDetails
+    })
 }
 
 module.exports = UserRoute

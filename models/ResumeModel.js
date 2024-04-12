@@ -91,7 +91,15 @@ const ResumeSchema = new mongoose.Schema({
             required: false
         },
         content: String
-    }]
+    }],
+    status: {
+        type: String,
+        enum: ['inProgress', 'completed', 'downloaded'],
+        default: 'inProgress',
+        required: true
+    },
+}, {
+    timestamps: true
 })
 
 const Resume = mongoose.model("Resume", ResumeSchema)

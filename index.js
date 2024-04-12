@@ -1,5 +1,6 @@
 const DBConnection = require('./config/db')
 const { apiKeyAuth } = require('./middlewares/auth')
+const roleCheck = require('./middlewares/RoleBasedAccessControl')
 const verifyJWT = require('./middlewares/verifyJwt')
 const ResumeRoute = require('./routes/ResumeRoute')
 const UserRoute = require('./routes/UserRoute')
@@ -59,6 +60,8 @@ fastify.register(cors, {
 
 
 fastify.decorate('verifyJWT', verifyJWT)
+
+fastify.decorate('roleCheck', roleCheck)
 
 // check apikey on each request
 fastify.addHook("onRequest", apiKeyAuth)

@@ -1,11 +1,12 @@
 const { Resume } = require("../models/ResumeModel");
 const { User } = require("../models/userModel")
 
-
+// get the user resume based on the resumeId
 const getUserResume = async (request, reply) => {
     const userId = request.user._id
+    const { resumeId } = request.params;
     try {
-        const userResume = await Resume.find({ userId })
+        const userResume = await Resume.find({ _id: resumeId, userId })
         if (!userResume) {
             reply.code(404).send({
                 status: "FAILURE",
@@ -26,7 +27,47 @@ const getUserResume = async (request, reply) => {
     }
 }
 
+//get all resumes of the user 
+const getAllResumes = async (request, reply) => {
+    const userId = request.user._id;
+    const { status } = request.query;
+    const validStatuses = ['inProgress', 'completed', 'downloaded'];
 
+    if (status && !validStatuses.includes(status)) {
+        return reply.code(400).send({
+            status: "FAILURE",
+            error: "Invalid status value"
+        });
+    }
+    try {
+        let query = { userId };
+        if (status) {
+            query.status = status;
+        }
+        const resumes = await Resume.find(query)
+        if (resumes.length === 0) {
+            return reply.code(404).send({
+                status: "FAILURE",
+                error: "No user resumes found"
+            })
+        }
+
+        reply.code(200).send({
+            status: "SUCCESS",
+            message: "User resumes data",
+            data: resumes
+        })
+    } catch (error) {
+        console.log(error)
+        reply.code(500).send({
+            status: "FAILURE",
+            error: error.message || "Internal server error"
+        })
+    }
+}
+
+
+// udpate the resume fields of the user based on the resumeId 
 const updateUserResume = async () => {
     const { resumeId } = req.params;
     const updates = req.body;
@@ -55,7 +96,7 @@ const updateUserResume = async () => {
         })
     }
 }
-
+// create a new resume for the user
 const createResume = async (request, reply) => {
     const userId = request.user._id;
     console.log(userId)
@@ -81,11 +122,14 @@ const createResume = async (request, reply) => {
         if (projects) newResume.projects = projects;
         if (customSections) newResume.customSections = customSections;
 
-        await newResume.save();
+        const savedResume = await newResume.save();
+        const user = await User.findById(userId)
+        user.resumes.push(savedResume._id)
+        await user.save({ validateBeforeSave: false })
         return reply.code(201).send({
             status: "SUCCESS",
             message: "Resume created succesfully",
-            data: newResume
+            data: savedResume
         })
     } catch (error) {
         console.log(error)
@@ -96,12 +140,13 @@ const createResume = async (request, reply) => {
     }
 }
 
+
+// delete the resume of the user based on the resumeId
 const deleteResume = async (request, reply) => {
     const { resumeId } = request.params;
     const userId = request.user._id;
     try {
         const userResume = await Resume.findOne({ _id: resumeId, userId })
-        console.log(userResume)
         if (!userResume) {
             return reply.code(404).send({
                 status: "FAILURE",
@@ -124,4 +169,4 @@ const deleteResume = async (request, reply) => {
 
 
 
-module.exports = { getUserResume, updateUserResume, createResume, deleteResume }
+module.exports = { getUserResume, updateUserResume, createResume, deleteResume, getAllResumes }
