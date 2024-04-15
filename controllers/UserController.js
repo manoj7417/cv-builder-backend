@@ -10,6 +10,7 @@ const resetPasswordTemplatePath = path.join(
 );
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/userModel");
+const { Resume } = require("../models/ResumeModel");
 
 //generate access token and refresh token for the user
 const generateAccessAndRefereshTokens = async (userId) => {
@@ -193,6 +194,105 @@ const updateUserDetails = async (request, reply) => {
     });
   }
 }
+
+
+//get all users data
+const getAllUsers = async (request, reply) => {
+  const { startDate, endDate, order, isSubscribed } = request.query;
+
+  try {
+    // Validate startDate and endDate
+    const isValidDate = (dateString) => {
+      return dateString && !isNaN(Date.parse(dateString));
+    };
+
+    if ((startDate && !isValidDate(startDate)) || (endDate && !isValidDate(endDate))) {
+      return reply.code(400).send({ status: "FAILURE", error: "Invalid startDate or endDate" });
+    }
+
+    // Validate order
+    const isValidOrder = (order) => {
+      return !order || ['asc', 'desc'].includes(order);
+    };
+
+    if (order && !isValidOrder(order)) {
+      return reply.code(400).send({ status: "FAILURE", error: "Invalid order value. It should be 'asc' or 'desc'." });
+    }
+
+    if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
+      return reply.code(400).send({ status: "FAILURE", error: "startDate should be less than endDate." });
+    }
+
+    let pipeline = []
+
+    pipeline.push({
+      $match: { role: "user" }
+    })
+    // Construct filter based on query parameters
+    const matchStage = {};
+    if (startDate) {
+      matchStage.createdAt = { $gte: new Date(startDate) };
+    }
+    if (endDate) {
+      matchStage.createdAt = { ...matchStage.createdAt, $lte: new Date(endDate) };
+    }
+    if (Object.keys(matchStage).length > 0) {
+      pipeline.push({ $match: matchStage });
+    }
+
+    if (isSubscribed !== undefined) {
+      pipeline.push({
+        $match: {
+          isSubscribed: isSubscribed === 'true' // Convert string to boolean
+        }
+      });
+    }
+
+    // Optional sorting by order
+    if (order) {
+      pipeline.push({
+        $sort: {
+          order: order === 'asc' ? 1 : -1
+        }
+      });
+    }
+
+    pipeline.push({
+      $lookup: {
+        from: 'resumes',
+        localField: 'resumes',
+        foreignField: '_id',
+        as: 'resumes'
+      }
+    }, {
+      $addFields: {
+        numberOfResumes: { $size: '$resumes' }
+      }
+    });
+
+    let users;
+    if (pipeline.length > 0) {
+      users = await User.aggregate(pipeline);
+    } else {
+      users = await User.find();
+    }
+
+    const totalResumesCount = await Resume.countDocuments();
+
+    const numberOfUsers = users.length;
+    reply.code(200).send({
+      status: "SUCCESS",
+      data: { userData: users, numberOfUsers, totalResumesCount },
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    reply.code(500).send({
+      status: "FAILURE",
+      error: error.message || "Internal server error",
+    });
+  }
+}
+
 //decode the reset password token and return the decode result
 async function decodeToken(token) {
   try {
@@ -208,5 +308,6 @@ module.exports = {
   login,
   forgetPassword,
   resetPassword,
-  updateUserDetails
+  updateUserDetails,
+  getAllUsers
 };
