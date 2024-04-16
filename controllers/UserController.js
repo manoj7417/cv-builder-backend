@@ -89,7 +89,6 @@ const login = async (request, reply) => {
       }).code(200).send({
         status: "SUCCESS",
         message: "LogIn successful",
-        token: accessToken,
       });
     }
   } catch (error) {
