@@ -4,7 +4,8 @@ const { User } = require('../models/userModel')
 require('dotenv').config()
 
 async function verifyJWT(request, reply) {
-    const token = request.headers?.authorization?.split(" ")[1]
+    const token = request.cookies?.accessToken
+    // request.headers?.authorization?.split(" ")[1]
     try {
         if (!token) {
             return reply.code(401).send({

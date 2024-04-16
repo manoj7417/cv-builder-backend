@@ -81,10 +81,9 @@ const login = async (request, reply) => {
 
     if (accessToken) {
       reply.setCookie('accessToken', accessToken, {
-        httpOnly: true, // Recommended for security purposes
-        secure: process.env.NODE_ENV !== 'development',
-        path: '/', // Cookie path
-        sameSite: 'none', // Cross-site cookie setting
+        httpOnly: true, 
+        secure: process.env.NODE_ENV !== 'development', 
+        sameSite: 'none', 
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
       }).code(200).send({
         status: "SUCCESS",
@@ -112,7 +111,7 @@ const forgetPassword = async (request, reply) => {
       });
     }
     const token = await user.generateResetPassowordToken();
-    const url = `${process.env.DOMAINURL}/resetPassword/${token}`;
+    const url = `${process.env.DOMAINURL}/${token}`;
     const emailtemplate = fs.readFileSync(resetPasswordTemplatePath, "utf-8");
     const emailBody = emailtemplate
       .replace("{userName}", user.fullname)
