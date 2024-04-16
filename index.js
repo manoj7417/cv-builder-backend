@@ -10,11 +10,12 @@ const cookie = require('@fastify/cookie');
 require('dotenv').config()
 
 const fastify = require('fastify')({
-    logger: {
-        transport: {
-            target: "pino-pretty"
-        }
-    }
+    // logger: {
+    //     transport: {
+    //         target: "pino-pretty"
+    //     }
+    // }
+    logger : false
 })
 
 fastify.register(cookie)

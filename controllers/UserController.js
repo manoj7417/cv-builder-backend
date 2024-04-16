@@ -78,6 +78,7 @@ const login = async (request, reply) => {
     }
     const accessToken = await user.generateAccessToken();
 
+
     if (accessToken) {
       reply.setCookie('accessToken', accessToken, {
         httpOnly: true, // Recommended for security purposes
@@ -88,6 +89,7 @@ const login = async (request, reply) => {
       }).code(200).send({
         status: "SUCCESS",
         message: "LogIn successful",
+        token: accessToken,
       });
     }
   } catch (error) {
