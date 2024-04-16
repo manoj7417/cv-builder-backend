@@ -5,6 +5,7 @@ const verifyJWT = require('./middlewares/verifyJwt')
 const ResumeRoute = require('./routes/ResumeRoute')
 const UserRoute = require('./routes/UserRoute')
 const cors = require('@fastify/cors')
+const cookie = require('@fastify/cookie');
 
 require('dotenv').config()
 
@@ -15,6 +16,8 @@ const fastify = require('fastify')({
         }
     }
 })
+
+fastify.register(cookie)
 
 fastify.register(require('@fastify/swagger'), {
     openapi: {

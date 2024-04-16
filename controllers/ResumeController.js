@@ -99,7 +99,6 @@ const updateUserResume = async () => {
 // create a new resume for the user
 const createResume = async (request, reply) => {
     const userId = request.user._id;
-    console.log(userId)
     const {
         personalInfo,
         education,

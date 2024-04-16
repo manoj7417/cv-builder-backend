@@ -77,11 +77,17 @@ const login = async (request, reply) => {
       });
     }
     const accessToken = await user.generateAccessToken();
+
     if (accessToken) {
-      reply.code(200).send({
+      reply.setCookie('accessToken', accessToken, {
+        httpOnly: true, // Recommended for security purposes
+        secure: process.env.NODE_ENV !== 'development',
+        path: '/', // Cookie path
+        sameSite: 'none', // Cross-site cookie setting
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      }).code(200).send({
         status: "SUCCESS",
         message: "LogIn successful",
-        token: accessToken,
       });
     }
   } catch (error) {
