@@ -112,7 +112,7 @@ const forgetPassword = async (request, reply) => {
       });
     }
     const token = await user.generateResetPassowordToken();
-    const url = `${process.env.DOMAINURL}/resetPassword/${token}`;
+    const url = `${process.env.DOMAINURL}/${token}`;
     const emailtemplate = fs.readFileSync(resetPasswordTemplatePath, "utf-8");
     const emailBody = emailtemplate
       .replace("{userName}", user.fullname)
