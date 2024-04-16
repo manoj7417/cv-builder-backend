@@ -7,11 +7,12 @@ const cors = require('@fastify/cors')
 require('dotenv').config()
 
 const fastify = require('fastify')({
-    logger: {
-        transport: {
-            target: "pino-pretty"
-        }
-    }
+    // logger: {
+    //     transport: {
+    //         target: "pino-pretty"
+    //     }
+    // }
+    logger : false
 })
 
 fastify.register(cors, {

@@ -73,11 +73,13 @@ const login = async (request, reply) => {
       });
     }
     const accessToken = await user.generateAccessToken();
+
     if (accessToken) {
-      reply.code(200).send({
+     return reply.code(200).send({
         status: "SUCCESS",
         message: "LogIn successful",
         token: accessToken,
+        user,
       });
     }
   } catch (error) {
