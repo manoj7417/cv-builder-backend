@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        requried: true,
+        required: true,
         trim: true
     },
     password: {
@@ -18,8 +18,25 @@ const UserSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-
-})
+    role: {
+        type: String,
+        required: true,
+        trim: true,
+        enum: ['user', 'admin'],
+        default: 'user',
+    },
+    isSubscribed: {
+        type: Boolean,
+        default: false
+    },
+    resumes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Resume"
+    }]
+},
+    {
+        timestamps: true
+    })
 
 UserSchema.pre("save", async function (next) {
     try {
@@ -80,4 +97,4 @@ UserSchema.methods.generateResetPassowordToken = function () {
 
 const User = mongoose.model("User", UserSchema)
 
-module.exports = User
+module.exports = { User };
