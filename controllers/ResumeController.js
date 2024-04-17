@@ -66,6 +66,23 @@ const getAllResumes = async (request, reply) => {
     }
 }
 
+const generateObjective = async (request, reply) => {
+    const { jobTitle, companyName, startDate, endDate, desiredJobTitle, topSkills, achievement } = request.body;
+    const userId = request.user._id;
+    try {
+        const dummyData = 'As a developer, my objective is to leverage my technical skills and creativity to contribute to innovative and impactful projects. I aim to develop high-quality software solutions that address real-world problems and enhance user experiences. By continuously learning and adapting to new technologies and best practices, I strive to deliver robust, scalable, and maintainable code. My goal is to collaborate effectively with cross-functional teams, communicate ideas clearly, and meet project deadlines while upholding the highest standards of professionalism and integrity. Ultimately, I aspire to make a meaningful and lasting impact in the field of software development, driving positive change and delivering value to users and stakeholders alike.'
+        return reply.code(200).send({
+            status: 'SUCCESS',
+            data: dummyData
+        })
+    } catch (error) {
+        console.log("Error in generating objectives for the user")
+        return reply.code(500).send({
+            status: "FAILURE",
+            error: error.message || "Internal server error"
+        })
+    }
+}
 
 // udpate the resume fields of the user based on the resumeId 
 const updateUserResume = async () => {
@@ -168,4 +185,4 @@ const deleteResume = async (request, reply) => {
 
 
 
-module.exports = { getUserResume, updateUserResume, createResume, deleteResume, getAllResumes }
+module.exports = { getUserResume, updateUserResume, createResume, deleteResume, getAllResumes, generateObjective }
