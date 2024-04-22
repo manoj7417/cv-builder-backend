@@ -1,4 +1,4 @@
-const { getUserResume, updateUserResume, createResume, deleteResume, getAllResumes, generateObjective } = require("../controllers/ResumeController");
+const { getUserResume, updateUserResume, createResume, deleteResume, getAllResumes, generateObjective, analyzeResume } = require("../controllers/ResumeController");
 
 const updateResumeSchema = {
     params: {
@@ -65,6 +65,8 @@ async function ResumeRoute(fastify, options) {
 
     // delete the resume of the user based on the resumeId
     fastify.delete("/delete/:resumeId", deleteResume)
+
+    fastify.post("/analyze",analyzeResume)
 }
 
 module.exports = ResumeRoute;

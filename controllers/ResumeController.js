@@ -184,5 +184,18 @@ const deleteResume = async (request, reply) => {
 }
 
 
+const analyzeResume = async (request, reply) => {
+    const { formData } = request.body;
+    try {
+        console.log(formData)
+    } catch (error) {
+        console.log(error)
+        return reply.code(500).send({
+            status: "FAILURE",
+            error: error.message || "Internal server error"
+        })
+    }
+}
 
-module.exports = { getUserResume, updateUserResume, createResume, deleteResume, getAllResumes, generateObjective }
+
+module.exports = { getUserResume, updateUserResume, createResume, deleteResume, getAllResumes, generateObjective, analyzeResume }
