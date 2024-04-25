@@ -4,8 +4,10 @@ const roleCheck = require('./middlewares/RoleBasedAccessControl')
 const verifyJWT = require('./middlewares/verifyJwt')
 const ResumeRoute = require('./routes/ResumeRoute')
 const UserRoute = require('./routes/UserRoute')
+const OpenaiRoute = require('./routes/OpenaiRoute')
 const cors = require('@fastify/cors')
 const cookie = require('@fastify/cookie');
+const multer = require('fastify-multer'); 
 
 require('dotenv').config()
 
@@ -60,7 +62,7 @@ fastify.register(cors, {
     credentials: true
 });
 
-
+fastify.register(multer.contentParser);
 
 fastify.decorate('verifyJWT', verifyJWT)
 
@@ -74,6 +76,8 @@ fastify.addHook("onRequest", apiKeyAuth)
 fastify.register(UserRoute, { prefix: '/api/user' })
 
 fastify.register(ResumeRoute, { prefix: '/api/resume' })
+
+fastify.register(OpenaiRoute, { prefix: '/api/openai' })
 
 
 const start = async () => {
