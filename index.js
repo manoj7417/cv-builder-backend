@@ -83,7 +83,7 @@ fastify.register(OpenaiRoute, { prefix: '/api/openai' })
 const start = async () => {
     try {
         await DBConnection()
-        await fastify.listen({ port: process.env.PORT || 8080 })
+        await fastify.listen({ port: process.env.port || 8080 })
         fastify.log.info(`Server started on PORT ${fastify.server.address().port}`)
     } catch (error) {
         console.log(error)
