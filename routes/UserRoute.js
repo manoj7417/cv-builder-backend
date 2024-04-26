@@ -1,4 +1,4 @@
-const { register, login, forgetPassword, resetPassword, updateUserDetails, getAllUsers } = require("../controllers/UserController");
+const { register, login, forgetPassword, resetPassword, updateUserDetails, getAllUsers, logout } = require("../controllers/UserController");
 
 const registerSchema = {
     body: {
@@ -38,7 +38,7 @@ const resetPasswordSchema = {
         type: "object",
         required: ['newPassword', 'token'],
         properties: {
-            token: { type: 'string', format: "email", maxLength: 500 },
+            token: { type: 'string', maxLength: 500 },
             newPassword: { type: 'string', minLength: 8, maxLength: 100 }
         }
     }
@@ -77,6 +77,13 @@ async function UserRoute(fastify, options) {
         preHandler: [fastify.verifyJWT, fastify.roleCheck(['admin'])],
         handler: getAllUsers
 
+    })
+
+    fastify.route({
+        method: "GET",
+        url: "/logout",
+        preHandler: [fastify.verifyJWT],
+        handler: logout
     })
 }
 
