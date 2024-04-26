@@ -6,6 +6,7 @@ const { OpenAI } = require('openai');
 const fs = require('fs');
 const { type } = require('os');
 const { threadId } = require('worker_threads');
+const { User } = require('../models/userModel');
 
 
 const openai = new OpenAI(
@@ -236,7 +237,7 @@ async function aiAgent(req, reply) {
             
             const thread = await createThread();
             const threadId = thread.id;
-        
+            await User.findOneAndUpdate({ _id: user._id }, { $set: { threadId: threadId } });
         }
         else{
             const threadId = userthread;
