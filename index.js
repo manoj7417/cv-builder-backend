@@ -62,7 +62,7 @@ fastify.register(cors, {
     credentials: true
 });
 
-fastify.register(multer.contentParser);
+// fastify.register(multer.contentParser);
 
 fastify.decorate('verifyJWT', verifyJWT)
 
