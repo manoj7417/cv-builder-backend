@@ -228,19 +228,25 @@ async function createThread() {
 
 async function aiAgent(req, reply) {
     try {
-        const user = req.user;
-        const userthread = user.threadId;
+        
+        // const user = req.user;
 
-        if (!userthread) {
+        // const userthread = user.threadId;
 
-            const thread = await createThread();
-            const threadId = thread.id;
-            await User.findOneAndUpdate({ _id: user._id }, { $set: { threadId: threadId } });
-        }
-        else {
-            const threadId = userthread;
-        }
+        // if(!userthread){
+            
+        //     const thread = await createThread();
+        //     const threadId = thread.id;
+        //     await User.findOneAndUpdate({ _id: user._id }, { $set: { threadId: threadId } });
+        // }
+        // else{
+        //     const threadId = userthread;
+        // }
 
+        const thread = await createThread();
+        const threadId = thread.id;
+
+        console.log(req.file.path);
         const resume = await openai.files.create({
             file: fs.createReadStream(req.file.path),
             purpose: "assistants",
