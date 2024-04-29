@@ -71,7 +71,8 @@ fastify.decorate('roleCheck', roleCheck)
 // check apikey on each request
 fastify.addHook("onRequest", apiKeyAuth)
 // Routes 
-
+const storage = multer.memoryStorage();
+fastify.register(multer.contentParser);
 //userRoute
 fastify.register(UserRoute, { prefix: '/api/user' })
 
