@@ -1,4 +1,4 @@
-const { createAssistant, createThread, communicateWithAgent,aiAgent } = require("../utils/openai");
+const { createAssistant, createThread, communicateWithAgent, aiAgent, analyseResume } = require("../utils/openai");
 const multer = require('fastify-multer');
 const upload = multer({ dest: 'uploads/' });
 
@@ -9,7 +9,7 @@ const createAssistantSchema = {
             required: ['name', 'instructions', 'model'],
             properties: {
                 name: { type: 'string', maxLength: 100 },
-                instructions: { type: 'string' }, 
+                instructions: { type: 'string' },
                 model: { type: 'string', maxLength: 100 }
             }
         }
@@ -20,7 +20,8 @@ const createAssistantSchema = {
 async function OpenaiRoute(fastify, options) {
     fastify.post("/createAssistant", { schema: createAssistantSchema }, createAssistant)
     fastify.post("/communicateWithAgent", communicateWithAgent)
-    fastify.post("/aiAgent",{ preHandler: [fastify.verifyJWT, upload.single('file')] }, aiAgent)
+    fastify.post("/aiAgent", { preHandler: [fastify.verifyJWT, upload.single('file')] }, aiAgent)
+    fastify.post("/analyseResume", { preHandler: [fastify.verifyJWT, upload.single('file')] }, analyseResume)
     fastify.post("/createThread", { schema: createAssistantSchema }, createThread)
 }
 
