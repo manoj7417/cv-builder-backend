@@ -1,4 +1,4 @@
-const { createAssistant, createThread, communicateWithAgent,aiAgent, atsCheck, askBot } = require("../utils/openai");
+const { createAssistant, createThread, communicateWithAgent, aiAgent, atsCheck, askBot, analyseResume } = require("../utils/openai");
 const multer = require('fastify-multer');
 const upload = multer({ dest: 'uploads/' });
 
@@ -10,7 +10,7 @@ const createAssistantSchema = {
             required: ['name', 'instructions', 'model'],
             properties: {
                 name: { type: 'string', maxLength: 100 },
-                instructions: { type: 'string' }, 
+                instructions: { type: 'string' },
                 model: { type: 'string', maxLength: 100 }
             }
         }
