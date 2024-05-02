@@ -598,4 +598,4 @@ async function createThread(){
     }
 }
 
-module.exports = { createAssistant, createMessage, createThread, communicateWithAgent, aiAgent,atsCheck, askBot, analyseResume };
+module.exports = { createAssistant, createMessage, createThread, communicateWithAgent, aiAgent,atsCheck, askBot, analyseResume ,analyzeResume };
