@@ -43,15 +43,25 @@ const printResume = async (request, reply) => {
         </style>
                 ${html}
             `;
+        // const browser = await puppeteer.launch({
+        //     args: [
+        //         '--no-sandbox',
+        //         '--disable-setuid-sandbox',
+        //         '--single-process',
+        //         "--no-zygote",
+        //     ],
+        //     executablePath: '/usr/bin/google-chrome-stable',
+        // });
         const browser = await puppeteer.launch({
+            executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Windows path
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--single-process',
                 "--no-zygote",
             ],
-            executablePath: '/usr/bin/google-chrome-stable',
         });
+
 
         const page = await browser.newPage();
         await page.setContent(styledHtml, { waitUntil: 'networkidle0' });

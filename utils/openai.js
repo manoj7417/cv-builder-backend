@@ -573,7 +573,6 @@ async function atsCheck(req, reply) {
 
 async function askBot(req, reply) {
     try {
-        // const thread = await createThread();
         const threadId = "thread_RJSXp1st6LrR6D9okApOyS07";
         const { message } = await req.body;
         const createMessage = await openai.beta.threads.messages.create(threadId, {
@@ -779,7 +778,7 @@ async function generateResumeOnFeeback(req, reply) {
             message: "Feedback not generated"
         })
     } catch (error) {
-        console.log("error" , error)
+        console.log("error", error)
         reply.status(500).send(error);
     }
 }
@@ -968,7 +967,7 @@ async function generateCounsellingTest(req, reply) {
             }, {});
         };
         const testWithAnswers = mapAnswersToQuestions(test);
-        
+
         reply.status(201).send(testWithAnswers);
     } catch (error) {
         reply.status(500).send(error);
@@ -1032,18 +1031,18 @@ async function generateCareerAdvice(req, reply) {
             }
         };
         const response = await checkStatusAndGenerateResponse(threadId, run.id);
-       
+
         const personalisedSummary = JSON.parse(response[0].text.value)
         const userSummary = new Summary({ userId, ...personalisedSummary })
-        
+
         await userSummary.save();
-        
+
         await User.findByIdAndUpdate(userId, {
             $inc: { 'subscription.careerCounsellingTokens.credits': -1 }
         });
         reply.send(response);
     } catch (error) {
-        
+
         reply.status(500).send(error);
     }
 

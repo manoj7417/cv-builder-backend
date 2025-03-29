@@ -72,18 +72,19 @@ const register = async (request, reply) => {
     const user = new User({ email, fullname, password });
     await user.save();
     const verificationToken = await getVerificationToken(user._id);
-    const verificationLink = `https://geniescareerhub.com/verify-email?token=${verificationToken}`;
+    // const verificationLink = `https://geniescareerhub.com/verify-email?token=${verificationToken}`;
+    const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
     const VerifyEmail = fs.readFileSync(VerfiyEmailPath, "utf-8");
     const VerfiyEmailBody = VerifyEmail.replace("{username}", fullname).replace("{verify-link}", verificationLink)
     const welcomeTemplate = fs.readFileSync(welcomeTemplatePath, "utf-8");
     const welcomeEmailBody = welcomeTemplate.replace("{fullname}", fullname)
     await sendEmail(
       email,
-      "Genies Career Hub: Email verification",
+      "CV Builder: Email verification",
       VerfiyEmailBody,
     );
     setTimeout(async () => {
-      await sendEmail(email, "Welcome to Genies Career Hub", welcomeEmailBody);
+      await sendEmail(email, "Welcome to CV Builder", welcomeEmailBody);
     }, 100000)
     return reply.code(201).send({
       status: "SUCCESS",
@@ -269,7 +270,7 @@ const googleLogin = async (request, reply) => {
       const welcomeEmailBody = welcomeTemplate.replace("{fullname}", name);
 
       setTimeout(async () => {
-        await sendEmail(email, "Welcome to Genies Career Hub", welcomeEmailBody);
+        await sendEmail(email, "Welcome to CV Builder", welcomeEmailBody);
       }, 100000);
     }
 
@@ -303,8 +304,8 @@ const forgetPassword = async (request, reply) => {
       });
     }
     const token = await user.generateResetPassowordToken();
-    const url = `https://geniescareerhub.com/reset-password?token=${token}`;
-    // const url = `https://geniescareerhub.com/reset-password?token=${token}&type=user`;
+    // const url = `https://geniescareerhub.com/reset-password?token=${token}`;
+    const url = `http://localhost:3000/reset-password?token=${token}`;
     const emailtemplate = fs.readFileSync(resetPasswordTemplatePath, "utf-8");
     const emailBody = emailtemplate
       .replace("{userName}", user.fullname)
