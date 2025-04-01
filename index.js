@@ -1,6 +1,6 @@
 const fastify = require('fastify')({
     logger: false
-}); 
+});
 fastify.register(require('@fastify/formbody'));
 const path = require('path');
 const fs = require('fs');
@@ -21,6 +21,7 @@ const SummaryRoute = require('./routes/SummaryRoute');
 const EmailRoute = require('./routes/EmailRoute');
 const BlogRoute = require('./routes/BlogRoute');
 const PaymentRoute = require('./routes/PaymentRoute');
+const CVPaymentRoute = require('./routes/CVBuilderPaymentRoute');
 const NewsletterRoute = require('./routes/NewsLetterRoute');
 const CoachRoute = require('./routes/CoachRoute');
 const coachAuth = require('./middlewares/coachAuth');
@@ -85,6 +86,7 @@ fastify.register(SummaryRoute, { prefix: "/api/summary" });
 fastify.register(EmailRoute, { prefix: "/api/message" });
 fastify.register(BlogRoute, { prefix: "/api/blog" });
 fastify.register(PaymentRoute, { prefix: "/api/payment" });
+fastify.register(CVPaymentRoute, { prefix: "/api/cv-builder" });
 fastify.register(NewsletterRoute, { prefix: "/api/newsletter" });
 fastify.register(CoachRoute, { prefix: "/api/coach" });
 fastify.register(uploadImage, { prefix: "/api/uploadimage" });
