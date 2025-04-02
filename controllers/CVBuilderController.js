@@ -14,16 +14,27 @@ const razorpay = new Razorpay({
 // ✅ Create Order
 const createOrder = async (request, reply) => {
     try {
-        const { userId, planType } = request.body; // Accept planType from frontend
+        const { userId, planType } = request.body;
 
         if (!userId || !planType) {
             return reply.status(400).send({ success: false, message: "User ID and Plan Type are required" });
         }
 
-        // Set amount based on planType
+        // Normalize and validate planType
         const normalizedPlanType = planType.toLowerCase();
-        const amount = normalizedPlanType === "pro" ? 14900 : 0;
+        const amount = normalizedPlanType === "pro" ? 14900 : null;
 
+        if (!amount) {
+            return reply.status(400).send({ success: false, message: "Invalid plan type or free plan does not require payment" });
+        }
+
+        // Check if pending order already exists
+        const existingOrder = await CVPayment.findOne({ userId, planType, status: "pending" });
+        if (existingOrder) {
+            return reply.send({ success: true, order: existingOrder });
+        }
+
+        // Create a new order with Razorpay
         const options = {
             amount,
             currency: "INR",
@@ -36,7 +47,7 @@ const createOrder = async (request, reply) => {
         const payment = new CVPayment({
             userId,
             orderId: order.id,
-            planType, // Store plan type
+            planType,
             amount: order.amount,
             currency: order.currency,
             status: "pending",
@@ -60,13 +71,18 @@ const verifyPayment = async (request, reply) => {
             return reply.status(400).send({ success: false, message: "Missing required fields" });
         }
 
-        // ✅ Use built-in crypto module to generate the signature
+        // Fetch payment record
+        const paymentRecord = await CVPayment.findOne({ orderId });
+        if (!paymentRecord || paymentRecord.status === "success") {
+            return reply.status(400).send({ success: false, message: "Invalid or already verified order" });
+        }
+
+        // ✅ Generate and verify signature
         const generatedSignature = crypto
-            .createHmac("sha256", process.env.RAZORPAY_SECRET) // Ensure secret is correctly set
+            .createHmac("sha256", process.env.RAZORPAY_SECRET)
             .update(`${orderId}|${paymentId}`)
             .digest("hex");
 
-        // ✅ Verify signature
         if (generatedSignature !== signature) {
             await CVPayment.findOneAndUpdate({ orderId }, { status: "failed" });
             return reply.status(400).send({ success: false, message: "Payment verification failed" });
