@@ -4,6 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Welcome to CV Builder</title>
+    <style>
+      .coupon-box {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 25px 0;
+        text-align: center;
+        border: 2px dashed #ed1f23;
+      }
+      .coupon-code {
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        color: #ed1f23;
+        margin: 15px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 4px;
+        display: inline-block;
+      }
+      .cta-button {
+        background-color: #ed1f23;
+        color: white;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 15px;
+      }
+      .expiry-note {
+        color: #666;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+    </style>
   </head>
   <body
     style="
@@ -30,14 +66,36 @@
       <p>
         We're excited to have you on board with <strong>CV Builder</strong>! 🚀
       </p>
+
+      <!-- Coupon Section -->
+      <div class="coupon-box">
+        <h2 style="margin-top: 0; color: #ed1f23">Your Special Gift!</h2>
+        <p>
+          As a welcome offer, enjoy <strong>3 months FREE access</strong> to our
+          premium features!
+        </p>
+
+        <div class="coupon-code">{couponCode}</div>
+
+        <p class="expiry-note">Valid until: {expiryDate}</p>
+      </div>
+      <!-- End Coupon Section -->
+
       <p>
-        With CV Builder, you can create a **professional resume** in minutes.
-        Our easy-to-use platform helps you design, edit, and download a standout
-        CV tailored to your career goals.
+        With CV Builder, you can create a
+        <strong>professional resume</strong> in minutes. Our easy-to-use
+        platform helps you design, edit, and download a standout CV tailored to
+        your career goals.
       </p>
+
+      <p style="font-weight: bold; color: #ed1f23">
+        Use your coupon code during checkout to claim your free access.
+      </p>
+
       <p>
         If you have any questions, feel free to reach out—we're here to help!
       </p>
+
       <p>Best regards,<br /><strong>The CV Builder Team</strong></p>
     </div>
     <div

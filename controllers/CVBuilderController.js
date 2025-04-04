@@ -5,6 +5,7 @@ const { CVPayment } = require("../models/CVBuilderModel.js");
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET;
 
+
 // 🔹 Initialize Razorpay instance
 const razorpay = new Razorpay({
     key_id: RAZORPAY_KEY_ID,

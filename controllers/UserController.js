@@ -25,6 +25,7 @@ const { default: mongoose } = require('mongoose');
 const { OAuth2Client } = require("google-auth-library");
 const schedule = require('node-schedule');
 const { Program } = require('../models/ProgramModel');
+const { Coupon } = require('../models/CouponModel');
 
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -71,13 +72,43 @@ const register = async (request, reply) => {
     }
     const user = new User({ email, fullname, password });
     await user.save();
+
+
+    // Generate unique coupon code
+    const couponCode = 'WELCOME-' +
+      Math.random().toString(36).substring(2, 8).toUpperCase() +
+      '-' +
+      Date.now().toString(36).substring(4, 8).toUpperCase();
+
+
+    // Create coupon for the new user
+    const coupon = new Coupon({
+      userId: user._id,
+      code: couponCode,
+      discountPercentage: 100, // 100% discount (free access)
+      expirationDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+      isActive: true,
+      couponType: 'welcome' // To identify registration coupons
+    });
+    await coupon.save();
+
+
+
     const verificationToken = await getVerificationToken(user._id);
     // const verificationLink = `https://geniescareerhub.com/verify-email?token=${verificationToken}`;
     const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
     const VerifyEmail = fs.readFileSync(VerfiyEmailPath, "utf-8");
     const VerfiyEmailBody = VerifyEmail.replace("{username}", fullname).replace("{verify-link}", verificationLink)
     const welcomeTemplate = fs.readFileSync(welcomeTemplatePath, "utf-8");
-    const welcomeEmailBody = welcomeTemplate.replace("{fullname}", fullname)
+    // const welcomeEmailBody = welcomeTemplate.replace("{fullname}", fullname)
+    const welcomeEmailBody = welcomeTemplate
+      .replace(/{fullname}/g, fullname)
+      .replace(/{couponCode}/g, coupon.code)
+      .replace(/{expiryDate}/g, coupon.expirationDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }));
     await sendEmail(
       email,
       "CV Builder: Email verification",
@@ -89,6 +120,7 @@ const register = async (request, reply) => {
     return reply.code(201).send({
       status: "SUCCESS",
       message: "Registration successful",
+      couponCode: couponCode
     });
   } catch (error) {
     console.log(error);
