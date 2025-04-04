@@ -278,6 +278,7 @@ const googleLogin = async (request, reply) => {
     // Check if the user exists
     let user = await User.findOne({ email });
     let isNewUser = false;
+
     if (!user) {
 
       isNewUser = true;
@@ -291,6 +292,8 @@ const googleLogin = async (request, reply) => {
         role: "user",
       });
       await user.save();
+
+
     }
 
     // Generate tokens
@@ -298,8 +301,35 @@ const googleLogin = async (request, reply) => {
 
     // Send welcome email if it's a new user
     if (isNewUser) {
+      // Generate unique coupon code
+      const couponCode = 'WELCOME-' +
+        Math.random().toString(36).substring(2, 8).toUpperCase() +
+        '-' +
+        Date.now().toString(36).substring(4, 8).toUpperCase();
+
+
+      // Create coupon for the new user
+      const coupon = new Coupon({
+        userId: user._id,
+        code: couponCode,
+        discountPercentage: 100, // 100% discount (free access)
+        expirationDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+        isActive: true,
+        couponType: 'welcome' // To identify registration coupons
+      });
+      await coupon.save();
+
+
       const welcomeTemplate = fs.readFileSync(welcomeTemplatePath, "utf-8");
-      const welcomeEmailBody = welcomeTemplate.replace("{fullname}", name);
+      // const welcomeEmailBody = welcomeTemplate.replace("{fullname}", name);
+      const welcomeEmailBody = welcomeTemplate
+        .replace(/{fullname}/g, name)
+        .replace(/{couponCode}/g, coupon.code)
+        .replace(/{expiryDate}/g, coupon.expirationDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }));
 
       setTimeout(async () => {
         await sendEmail(email, "Welcome to CV Builder", welcomeEmailBody);
