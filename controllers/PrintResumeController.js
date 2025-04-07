@@ -3,82 +3,114 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const { User } = require('../models/userModel');
 
-const printResumePath = path.join(
-    __dirname,
-    '..',
-    'resumeTemplate/resume.html'
-);
+const printResumePath = path.join(__dirname, '..', 'resumeTemplate/resume.html');
+
+const getExecutablePath = () => {
+    // Try common Chrome locations first
+    const paths = {
+        win32: [
+            'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+            'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+        ],
+        darwin: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        linux: '/usr/bin/google-chrome-stable'
+    };
+
+    // Check if Chrome exists in any of the common locations
+    if (paths[process.platform]) {
+        for (const possiblePath of paths[process.platform]) {
+            if (fs.existsSync(possiblePath)) {
+                return possiblePath;
+            }
+        }
+    }
+
+    // Fallback to Puppeteer's bundled Chromium
+    return undefined;
+};
 
 const printResume = async (request, reply) => {
     const userId = request.user._id;
+    let browser = null;
+
     try {
         const user = await User.findById(userId);
-        const currentDate = new Date();
         if (!user) {
             return reply.code(404).send({ status: 'FAILURE', message: 'User not found' });
         }
-        // if (user.subscription.downloadCVTokens.expiry <= currentDate) {
-        //     return reply.code(403).send({
-        //         status: 'FAILURE',
-        //         message: 'Your download CV tokens have expired'
-        //     });
-        // }
-        // if (user.subscription.downloadCVTokens.credits <= 0) {
-        //     return reply.code(403).send({ status: 'FAILURE', message: 'You have no download CV tokens' });
-        // }
-        const htmlbody = request.body.html;
-        const htmlPage = fs.readFileSync(printResumePath, 'utf8').toString();
-        const html = htmlPage.replace('{{content}}', htmlbody);
-        const styledHtml = `     
+
+        if (user.subscription.downloadCVTokens.credits < 1) {
+            return reply.code(403).send({ status: 'FAILURE', message: 'Insufficient credits' });
+        }
+
+        const html = fs.readFileSync(printResumePath, 'utf8')
+            .toString()
+            .replace('{{content}}', request.body.html);
+
+        const styledHtml = `
             <style>
-            @page :first{
-                size: A4;
-                margin-top: 0;
-                margin-bottom: 10mm;
-              }
-              @page{
-                margin-top: 10mm;
-                margin-bottom: 10mm;
-              }
-        </style>
-                ${html}
-            `;
-        // const browser = await puppeteer.launch({
-        //     args: [
-        //         '--no-sandbox',
-        //         '--disable-setuid-sandbox',
-        //         '--single-process',
-        //         "--no-zygote",
-        //     ],
-        //     executablePath: '/usr/bin/google-chrome-stable',
-        // });
-        const browser = await puppeteer.launch({
-            executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", // Windows path
+                @page { margin: 10mm 0; }
+                @page :first { margin-top: 0; }
+                body { margin: 0; }
+            </style>
+            ${html}
+        `;
+
+        // Launch options with smart executable path detection
+        const launchOptions = {
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
-                '--single-process',
-                "--no-zygote",
+                '--disable-dev-shm-usage',
+                '--single-process'
             ],
+            headless: 'new',
+            executablePath: getExecutablePath()
+        };
+
+        // Debugging: Log the executable path being used
+        console.log('Using browser executable at:', launchOptions.executablePath || 'puppeteer bundled');
+
+        browser = await puppeteer.launch(launchOptions);
+        const page = await browser.newPage();
+
+        await page.setContent(styledHtml, {
+            waitUntil: 'networkidle0',
+            timeout: 30000
         });
 
-
-        const page = await browser.newPage();
-        await page.setContent(styledHtml, { waitUntil: 'networkidle0' });
         const pdfBuffer = await page.pdf({
             format: 'A4',
             printBackground: true,
+            margin: { top: '10mm', bottom: '10mm' }
         });
-        await browser.close();
+
         user.subscription.downloadCVTokens.credits -= 1;
         await user.save();
-        reply.header('Content-Type', 'application/pdf');
-        reply.header('Content-Disposition', 'attachment; filename="generated.pdf"');
-        return reply.status(200).send(pdfBuffer);
+
+        return reply
+            .header('Content-Type', 'application/pdf')
+            .header('Content-Disposition', 'attachment; filename="resume.pdf"')
+            .send(pdfBuffer);
+
     } catch (error) {
-        console.error('Error generating PDF:', error);
-        reply.status(500).send('Error generating PDF');
+        console.error('PDF Generation Error:', error);
+        return reply.code(500).send({
+            status: 'ERROR',
+            message: 'Failed to generate PDF',
+            ...(process.env.NODE_ENV === 'development' && {
+                debug: {
+                    error: error.message,
+                    platform: process.platform,
+                    chromePath: getExecutablePath()
+                }
+            })
+        });
+    } finally {
+        if (browser) {
+            await browser.close().catch(e => console.error('Browser close error:', e));
+        }
     }
-}
+};
 
 module.exports = { printResume };
